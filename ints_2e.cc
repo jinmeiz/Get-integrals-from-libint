@@ -28,13 +28,6 @@
 #include <libint2.hpp>
 #include <libint2/diis.h>
 
-#if defined(_OPENMP)
-# include <omp.h>
-#endif
-
-// uncomment if want to report integral timings (only useful if nthreads == 1)
-// N.B. integral engine timings are controled in engine.h
-//#define REPORT_INTEGRAL_TIMINGS
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
         Matrix;  // import dense, dynamically sized Matrix type from Eigen;
@@ -116,6 +109,7 @@ int main(int argc, char *argv[]) {
     for(const auto& a: atoms)
       std::cout << a.atomic_number << " " << a.x << " " << a.y << " " << a.z << std::endl;
 
+    // read basis sets
     auto shells = make_pvdz_basis(atoms);
 //    auto shells = make_ucpvdz_basis(atoms);
 //    auto shells = make_sto3g_basis(atoms);
@@ -138,6 +132,7 @@ int main(int argc, char *argv[]) {
     const auto n = nbasis(shells);
     double* g = new double[n * n * n * n];
 
+    // print 2e-integral into a file
     std::ofstream outfile;
 //    outfile.open("h2_pvdz_G_cg.out");
 //    outfile.open("o_sto3g_G_cg.out");
@@ -150,7 +145,7 @@ int main(int argc, char *argv[]) {
 
     auto shell2bf = map_shell_to_basis_function(shells);
 
-    // matrix is symmetric, but skipping it here for simplicity (see compute_2body_fock)
+    // matrix is symmetric, but skipping it here for simplicity
     for(auto s1=0; s1!=shells.size(); ++s1) {
 
       auto bf1_first = shell2bf[s1]; // first basis function in this shell
@@ -176,10 +171,7 @@ int main(int argc, char *argv[]) {
             // Coulomb contribution to the Fock matrix is from {s1,s2,s3,s4} integrals
             const auto* buf_1234 = engine.compute(shells[s1], shells[s2], shells[s3], shells[s4]);
 
-            // we don't have an analog of Eigen for tensors (yet ... see github.com/BTAS/BTAS, under development)
-            // hence some manual labor here:
-            // 1) loop over every integral in the shell set (= nested loops over basis functions in each shell)
-            // and 2) add contribution from each integral
+            // loop over every integral in the shell set (= nested loops over basis functions in each shell)
             for(auto f1=0, f1234=0; f1!=n1; ++f1) {
               const auto bf1 = f1 + bf1_first;
               for(auto f2=0; f2!=n2; ++f2) {
@@ -193,7 +185,6 @@ int main(int argc, char *argv[]) {
                 }
               }
             }
-
 
           }
         }
@@ -284,11 +275,11 @@ std::vector<Atom> read_dotxyz(std::istream& is) {
 
     atoms[i].atomic_number = Z;
 
-    // .xyz files report Cartesian coordinates in angstroms; convert to bohr
-    const auto angstrom_to_bohr = 1 ;// / 0.52917721092; // 2010 CODATA value
-    atoms[i].x = x * angstrom_to_bohr;
-    atoms[i].y = y * angstrom_to_bohr;
-    atoms[i].z = z * angstrom_to_bohr;
+//    // .xyz files report Cartesian coordinates in angstroms; convert to bohr
+//    const auto angstrom_to_bohr = 0.52917721092; // 2010 CODATA value
+//    atoms[i].x = x * angstrom_to_bohr;
+//    atoms[i].y = y * angstrom_to_bohr;
+//    atoms[i].z = z * angstrom_to_bohr;
   }
 
   return atoms;
