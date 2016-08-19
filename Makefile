@@ -1,13 +1,14 @@
-TOPDIR=/Users/jinmei/software/build/libint
+TOPDIR= libint build directory (/Users/jinmei/software/build/libint)
+INSDIR= libint install directory (/Users/jinmei/software/install/libint)
 CWD=$(shell pwd)
 ifndef SRCDIR
-  SRCDIR=/Users/jinmei/software/source/libint
+  SRCDIR=libint source directory (/Users/jinmei/software/source/libint)
 endif
 -include $(TOPDIR)/src/bin/MakeVars
 -include $(TOPDIR)/src/lib/libint/MakeVars.features
 
 # include headers the object include directory
-CPPFLAGS += -I$(TOPDIR)/include -I$(TOPDIR)/include/libint2 -I$(SRCDIR)/$(TOPDIR)/src/lib/libint -I/Users/jinmei/software/install/libint/include -I/usr/local/include/eigen3 -DSRCDATADIR=\"$(SRCDIR)/lib/basis\"
+CPPFLAGS += -I$(TOPDIR)/include -I$(TOPDIR)/include/libint2 -I$(SRCDIR)/$(TOPDIR)/src/lib/libint -I/($INSDIR)/include -I/usr/local/include/eigen3 -DSRCDATADIR=\"$(SRCDIR)/lib/basis\"
 
 COMPILER_LIB = $(TOPDIR)/src/bin/libint/libINT.a
 COMPUTE_LIB = -lint2
