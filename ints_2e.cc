@@ -198,11 +198,11 @@ int main(int argc, char *argv[]) {
 //            printf("%10.8f   ", g[idx]);
             outfile << std::setprecision(12) << g[idx] << endl;
           }
-          cout << endl;
+//          cout << endl;
         }
-        cout << endl;
+//        cout << endl;
       }
-      cout << endl;
+//      cout << endl;
     }
 
     double ehf = 0;
