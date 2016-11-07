@@ -287,6 +287,13 @@ int main(int argc, char *argv[]) {
 
     // compute one-body integrals
     auto S = compute_1body_ints<Operator::overlap>(obs)[0];
+    {
+    std::ofstream outfile;
+    outfile.open("S.out");
+    outfile << std::setprecision(12) << S << endl;
+    outfile.close();
+    }
+
     auto T = compute_1body_ints<Operator::kinetic>(obs)[0];
     auto V = compute_1body_ints<Operator::nuclear>(obs, atoms)[0];
     Matrix H = T + V;

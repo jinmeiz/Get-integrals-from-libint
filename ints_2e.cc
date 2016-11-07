@@ -112,8 +112,8 @@ int main(int argc, char *argv[]) {
       std::cout << a.atomic_number << " " << a.x << " " << a.y << " " << a.z << std::endl;
 
     // read basis sets
-//    auto shells = make_pvdz_basis(atoms);
-    auto shells = make_ucpvdz_basis(atoms);
+    auto shells = make_pvdz_basis(atoms);
+//    auto shells = make_ucpvdz_basis(atoms);
 //    auto shells = make_augpvdz_basis(atoms);
 //    auto shells = make_ucaugpvdz_basis(atoms);
 //    auto shells = make_sto3g_basis(atoms);
@@ -121,8 +121,8 @@ int main(int argc, char *argv[]) {
     size_t nao = 0;
     for (auto s=0; s<shells.size(); ++s)
       nao += shells[s].size();
-
     cout << "number of ao: " << nao << endl;
+
     // initializes the Libint integrals library ... now ready to compute
     libint2::initialize();
 
@@ -206,6 +206,8 @@ int main(int argc, char *argv[]) {
       //cout << endl;
     }
 
+    outfile.close();
+
     double ehf = 0;
 
     printf("** Hartree-Fock energy = %20.12f\n", ehf + enuc);
@@ -276,11 +278,14 @@ std::vector<Atom> read_dotxyz(std::istream& is) {
 
     atoms[i].atomic_number = Z;
 
-//    // .xyz files report Cartesian coordinates in angstroms; convert to bohr
-//    const auto angstrom_to_bohr = 0.52917721092; // 2010 CODATA value
-//    atoms[i].x = x * angstrom_to_bohr;
-//    atoms[i].y = y * angstrom_to_bohr;
-//    atoms[i].z = z * angstrom_to_bohr;
+    // .xyz files report Cartesian coordinates in angstroms; convert to bohr
+    const auto angstrom_to_bohr = 0.52917721092; // 2010 CODATA value
+    atoms[i].x = x * angstrom_to_bohr;
+    atoms[i].y = y * angstrom_to_bohr;
+    atoms[i].z = z * angstrom_to_bohr;
+//    atoms[i].x = x;
+//    atoms[i].y = y;
+//    atoms[i].z = z;
   }
 
   return atoms;
@@ -370,7 +375,7 @@ std::vector<libint2::Shell> make_sto3g_basis(const std::vector<Atom>& atoms) {
               {2.941249400, 0.683483100, 0.222289900},
               {
                 {0, false, {-0.09996723, 0.39951283, 0.70011547}}
-              },
+              }, 
               {{atoms[a].x, atoms[a].y, atoms[a].z}}
             }
         );
