@@ -52,7 +52,9 @@ std::vector<Atom> read_geometry(const std::string& filename);
 std::vector<libint2::Shell> make_sto3g_basis(const std::vector<Atom>& atoms);
 std::vector<libint2::Shell> make_ucsto3g_basis(const std::vector<Atom>& atoms);
 std::vector<libint2::Shell> make_pvdz_basis(const std::vector<Atom>& atoms);
+std::vector<libint2::Shell> make_augpvdz_basis(const std::vector<Atom>& atoms);
 std::vector<libint2::Shell> make_ucpvdz_basis(const std::vector<Atom>& atoms);
+std::vector<libint2::Shell> make_ucaugpvdz_basis(const std::vector<Atom>& atoms);
 
 size_t nbasis(const std::vector<libint2::Shell>& shells);
 
@@ -110,9 +112,12 @@ int main(int argc, char *argv[]) {
       std::cout << a.atomic_number << " " << a.x << " " << a.y << " " << a.z << std::endl;
 
     // read basis sets
-    auto shells = make_pvdz_basis(atoms);
-//    auto shells = make_ucpvdz_basis(atoms);
+//    auto shells = make_pvdz_basis(atoms);
+    auto shells = make_ucpvdz_basis(atoms);
+//    auto shells = make_augpvdz_basis(atoms);
+//    auto shells = make_ucaugpvdz_basis(atoms);
 //    auto shells = make_sto3g_basis(atoms);
+//    auto shells = make_ucsto3g_basis(atoms);
     size_t nao = 0;
     for (auto s=0; s<shells.size(); ++s)
       nao += shells[s].size();
@@ -134,11 +139,7 @@ int main(int argc, char *argv[]) {
 
     // print 2e-integral into a file
     std::ofstream outfile;
-//    outfile.open("h2_pvdz_G_cg.out");
-//    outfile.open("o_sto3g_G_cg.out");
-//    outfile.open("o_pvdz_G_cg_onlyD.out");
-//    outfile.open("h2o_sto3g_G_cg.out");
-    outfile.open("h2o_ccpvdz_G_cg.out");
+    outfile.open("G_2eints.out");
 
     // construct the electron repulsion integrals engine
     Engine engine(Operator::coulomb, max_nprim(shells), max_l(shells), 0);
@@ -198,11 +199,11 @@ int main(int argc, char *argv[]) {
 //            printf("%10.8f   ", g[idx]);
             outfile << std::setprecision(12) << g[idx] << endl;
           }
-//          cout << endl;
+          //cout << endl;
         }
-//        cout << endl;
+        //cout << endl;
       }
-//      cout << endl;
+      //cout << endl;
     }
 
     double ehf = 0;
@@ -1005,6 +1006,322 @@ std::vector<libint2::Shell> make_ucpvdz_basis(const std::vector<Atom>& atoms) {
         shells.push_back(
             {
               {1.1850000},
+              { // contraction 0: d shell (l=2), spherical=false
+                {2, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        break;
+      default:
+        throw "do not know cc-pVDZ basis for this Z";
+    }
+
+  }
+
+  return shells;
+}
+
+std::vector<libint2::Shell> make_augpvdz_basis(const std::vector<Atom>& atoms) {
+
+  using libint2::Shell;
+
+  std::vector<Shell> shells;
+
+  for(auto a=0; a<atoms.size(); ++a) {
+
+    // aug-cc-pVDZ basis set for O atom
+    // obtained from https://bse.pnl.gov/bse/portal
+    switch (atoms[a].atomic_number) {
+
+      case 8: // Z=8: oxygen
+        shells.push_back(
+            {
+              {11720.0000000,1759.0000000, 400.8000000, 113.7000000, 37.0300000, 13.2700000, 5.0250000, 1.0130000},
+              {
+                {0, false, {0.0007100, 0.0054700, 0.0278370, 0.1048000, 0.2830620, 0.4487190, 0.2709520, 0.0154580}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {11720.0000000, 1759.0000000, 400.8000000, 113.7000000, 37.0300000, 13.2700000, 5.0250000, 1.0130000},
+              {
+                {0, false, {-0.0001600, -0.0012630, -0.0062670, -0.0257160, -0.0709240, -0.1654110, -0.1169550, 0.5573680}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {0.3023000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {17.7000000, 3.8540000, 1.0460000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {1, false, {0.0430180, 0.2289130, 0.5087280}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {0.2753000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {1, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {1.1850000},
+              { // contraction 0: d shell (l=2), spherical=false
+                {2, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {0.3320000},
+              { // contraction 0: d shell (l=2), spherical=false
+                {2, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        break;
+
+      default:
+        throw "do not know aug-cc-pVDZ basis for this Z";
+    }
+
+  }
+
+  return shells;
+}
+
+std::vector<libint2::Shell> make_ucaugpvdz_basis(const std::vector<Atom>& atoms) {
+
+  using libint2::Shell;
+
+  std::vector<Shell> shells;
+
+  for(auto a=0; a<atoms.size(); ++a) {
+
+    // uncontracted aug-cc-pVDZ basis set for O atom
+    // obtained from https://bse.pnl.gov/bse/portal
+    switch (atoms[a].atomic_number) {
+       case 8: // Z=8: oxygen
+        shells.push_back(
+            {
+              {11720.0000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {1759.0000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {400.8000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {113.7000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {37.0300000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {13.2700000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {5.0250000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {1.0130000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {11720.0000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {1759.0000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {400.8000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {113.7000000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {37.0300000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {13.2700000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {5.0250000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {1.0130000},
+              {
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {0.3023000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {0, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {17.7000000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {1, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {3.8540000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {1, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {1.0460000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {1, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {0.2753000},
+              { // contraction 0: p shell (l=1), spherical=false
+                {1, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {1.1850000},
+              { // contraction 0: d shell (l=2), spherical=false
+                {2, false, {1.0}}
+              },
+              {{atoms[a].x, atoms[a].y, atoms[a].z}}
+            }
+        );
+        shells.push_back(
+            {
+              {0.3320000},
               { // contraction 0: d shell (l=2), spherical=false
                 {2, false, {1.0}}
               },
