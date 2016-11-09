@@ -255,7 +255,8 @@ int main(int argc, char *argv[]) {
 
     BasisSet obs(basisname, atoms);
     obs.set_pure(false);
-    cout << "orbital basis set rank = " << obs.nbf() << endl;
+    const int nobs = obs.nbf();
+    cout << "orbital basis set rank = " << nobs << endl;
 
 #ifdef HAVE_DENSITY_FITTING
     BasisSet dfbs;
@@ -358,7 +359,9 @@ int main(int argc, char *argv[]) {
     /*** =========================== ***/
     /***          SCF loop           ***/
     /*** =========================== ***/
-    Matrix Coef;
+    Matrix Coef_occ;
+    Matrix Coef_vir;
+    Matrix e_obs;
     const auto maxiter = 100;
     const auto conv = 1e-12;
     auto iter = 0;
@@ -447,7 +450,9 @@ int main(int argc, char *argv[]) {
       D = C_occ * C_occ.transpose();
       D_diff = D - D_last;
 
-      Coef = C_occ;
+      Coef_occ = C_occ;
+      Coef_vir = C.leftCols(nobs-ndocc);
+      e_obs = evals;
 
       const auto tstop = std::chrono::high_resolution_clock::now();
       const std::chrono::duration<double> time_elapsed = tstop - tstart;
@@ -471,10 +476,20 @@ int main(int argc, char *argv[]) {
     printf("** Test: exchange contribution to HF energy = %20.12f\n", e_K_test);
 
     // export coefficient matrix
-    std::ofstream outfile;
-    outfile.open("C.out");
-    outfile << std::setprecision(12) << Coef << endl;
-    outfile.close();
+    std::ofstream outfile1;
+    outfile1.open("C_occ.out");
+    outfile1 << std::setprecision(12) << Coef_occ << endl;
+    outfile1.close();
+
+    std::ofstream outfile2;
+    outfile2.open("C_vir.out");
+    outfile2 << std::setprecision(12) << Coef_vir << endl;
+    outfile2.close();
+
+    std::ofstream outfile3;
+    outfile3.open("e_obs.out");
+    outfile3 << std::setprecision(12) << e_obs << endl;
+    outfile3.close();
 
     auto Mu = compute_1body_ints<Operator::emultipole2>(obs);
     std::array<double,3> mu;
