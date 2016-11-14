@@ -1,0 +1,19 @@
+#!  H2O
+
+molecule h2o {
+
+O          0.00000       -0.07579        0.00000
+H          0.86681        0.60144        0.00000
+H         -0.86681        0.60144        0.00000
+
+units bohr
+}
+
+set {
+  reference rhf
+  basis cc-pvdz
+  freeze_core false
+}
+
+thisenergy = energy('mp2')
+

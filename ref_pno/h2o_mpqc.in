@@ -1,0 +1,80 @@
+molecule = $:H2O
+
+mpqc: (
+  mole = $:mole
+  savestate = no
+  integrals<IntegralLibint2>: ()
+)
+
+% Basis input
+ basis<GaussianBasisSet>: (
+    molecule = $:molecule
+    name = cc-pVDZ
+    puream = true
+  )
+
+ gbasis<SplitBasisSet>:(
+  basis = $:gmbasis
+ )
+  
+ gmbasis<GaussianBasisSet>: (
+    molecule = $:molecule
+    name = "STO-3G"
+    puream = true
+  )
+
+  memory = 3000000000
+  nfzc = 0
+  new_approach = true
+  value_accuracy = 1e-8
+
+  mole<MBPT2_R12>: (
+    value_accuracy = $:value_accuracy
+    ints_file = "../scratch/"
+    memory = $:memory
+    molecule = $:molecule
+    basis = $:basis
+    gbasis = $:gbasis
+    aux_basis<GaussianBasisSet>: (
+      molecule = $..:molecule
+      name = aug-cc-pVDZ-CABS
+    )
+
+    abs_method = cabs+
+
+    cabs_singles = true
+    stdapprox = C
+    corr_factor = stg-6g
+    debug = 0
+
+compute_1rdm = true
+ansatz<R12Ansatz>: ( diag = false )
+
+    coupling = true
+    corr_param = 1.1
+    reference<CLHF>: (
+      molecule = $..:molecule
+      basis = $..:basis
+      gbasis = $..:gbasis
+      total_charge = $..:molecule:charge
+      multiplicity = $..:molecule:spin
+
+      guess_wavefunction<CLHF>: (
+        molecule = $..:molecule
+        basis = $..:gbasis
+        total_charge = $..:molecule:charge
+        multiplicity = $..:molecule:spin
+      )
+    )
+    nfzc = $:nfzc
+  )
+
+H2O<Molecule>: (
+   symmetry = auto
+   unit = bohr
+   { atoms geometry } = {
+  O [  0.00000       -0.07579        0.00000 ]
+  H [  0.86681        0.60144        0.00000 ] 
+  H [ -0.86681        0.60144        0.00000 ]
+   }
+ )

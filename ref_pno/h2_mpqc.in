@@ -1,0 +1,83 @@
+molecule = $:H2
+
+mpqc: (
+  mole = $:mole
+  savestate = no
+  integrals<IntegralLibint2>: ()
+)
+
+% Basis input
+ basis<GaussianBasisSet>: (
+    molecule = $:molecule
+    name = cc-pVDZ
+    puream = true
+  )
+
+ gbasis<SplitBasisSet>:(
+  basis = $:gmbasis
+ )
+  
+ gmbasis<GaussianBasisSet>: (
+    molecule = $:molecule
+    name = "STO-3G"
+    puream = true
+  )
+
+  memory = 3000000000
+  nfzc = 0
+  new_approach = true
+  value_accuracy = 1e-13
+
+  mole<MBPT2_R12>: (
+    value_accuracy = $:value_accuracy
+    memory = $:memory
+    molecule = $:molecule
+    basis = $:basis
+    gbasis = $:gbasis
+    aux_basis<GaussianBasisSet>: (
+      molecule = $..:molecule
+      name = aug-cc-pVDZ-CABS
+    )
+
+    abs_method = cabs+
+
+    cabs_singles = true
+    stdapprox = C
+    corr_factor = stg-6g
+    debug = 0
+
+compute_1rdm = true
+ansatz<R12Ansatz>: ( diag = false )
+
+    coupling = true
+    corr_param = 1.1
+    reference<CLHF>: (
+      molecule = $..:molecule
+      basis = $..:basis
+      gbasis = $..:gbasis
+      total_charge = $..:molecule:charge
+      multiplicity = $..:molecule:spin
+      xdocc = $:H_docc
+      xsocc = $:H_socc
+
+      guess_wavefunction<CLHF>: (
+        molecule = $..:molecule
+        basis = $..:gbasis
+        total_charge = $..:molecule:charge
+        multiplicity = $..:molecule:spin
+        xdocc = $:H_docc
+        xsocc = $:H_socc
+      )
+    )
+    nfzc = $:nfzc
+  )
+
+H2<Molecule>: (
+   symmetry = c1
+   unit = bohr
+   { atoms geometry } = {
+H [ 0.000000000 0.000000000 0 ]
+H [ 0.000000000 0.000000000 1.4 ]
+
+   }
+ )
