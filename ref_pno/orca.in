@@ -1,0 +1,14 @@
+# A /C fitting basis set is required as RI is used for integral transformations
+! LPNO-CCSD cc-pVDZ cc-pVDZ/C TIGHTSCF
+
+%coords
+ CTyp xyz
+ Charge 0
+ Mult 1
+ Units bohrs
+ coords
+   O          0.00000       -0.07579        0.00000
+   H          0.86681        0.60144        0.00000
+   H         -0.86681        0.60144        0.00000
+ end
+end
