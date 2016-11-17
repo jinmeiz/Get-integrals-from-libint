@@ -288,9 +288,17 @@ int main(int argc, char *argv[]) {
 
     // compute one-body integrals
     auto S = compute_1body_ints<Operator::overlap>(obs)[0];
+    std::string mol_label = filename;
+    for (int i = 0; i<3; ++i) {
+      mol_label.pop_back();
+    }
+    mol_label.append(basisname);
+    mol_label.append(".");
+
     {
     std::ofstream outfile;
-    outfile.open("S.out");
+    std::string S_fname = mol_label;
+    outfile.open(S_fname.append("S.out"));
     outfile << std::setprecision(12) << S << endl;
     outfile.close();
     }
@@ -477,17 +485,20 @@ int main(int argc, char *argv[]) {
 
     // export coefficient matrix
     std::ofstream outfile1;
-    outfile1.open("C_occ.out");
+    std::string Cocc_fname = mol_label;
+    outfile1.open(Cocc_fname.append("C_occ.out"));
     outfile1 << std::setprecision(12) << Coef_occ << endl;
     outfile1.close();
 
     std::ofstream outfile2;
-    outfile2.open("C_vir.out");
+    std::string Cvir_fname = mol_label;
+    outfile2.open(Cvir_fname.append("C_vir.out"));
     outfile2 << std::setprecision(12) << Coef_vir << endl;
     outfile2.close();
 
     std::ofstream outfile3;
-    outfile3.open("e_obs.out");
+    std::string eorbs_fname = mol_label;
+    outfile3.open(eorbs_fname.append("e_orbs.out"));
     outfile3 << std::setprecision(12) << e_obs << endl;
     outfile3.close();
 

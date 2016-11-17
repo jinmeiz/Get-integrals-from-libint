@@ -1,0 +1,22 @@
+#!  H2O
+
+molecule h2o_2 {
+
+O         -0.843000       0.983000       1.255000
+H         -0.706000       1.119000       2.179000
+H          0.106000       0.737000       0.882000
+O          1.115000      -0.310000      -0.303000
+H          1.289000      -1.112000      -0.862000
+H          1.925000       0.138000      -0.403000
+
+units angstrom
+}
+
+set {
+  reference rhf
+  basis cc-pvdz
+  freeze_core false
+}
+
+thisenergy = energy('mp2')
+
