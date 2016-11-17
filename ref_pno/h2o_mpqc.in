@@ -10,7 +10,7 @@ mpqc: (
  basis<GaussianBasisSet>: (
     molecule = $:molecule
     name = cc-pVDZ
-    puream = true
+    puream = false
   )
 
  gbasis<SplitBasisSet>:(
@@ -30,7 +30,6 @@ mpqc: (
 
   mole<MBPT2_R12>: (
     value_accuracy = $:value_accuracy
-    ints_file = "../scratch/"
     memory = $:memory
     molecule = $:molecule
     basis = $:basis
@@ -47,8 +46,8 @@ mpqc: (
     corr_factor = stg-6g
     debug = 0
 
-compute_1rdm = true
-ansatz<R12Ansatz>: ( diag = false )
+
+ansatz<R12Ansatz>: ( diag = true )
 
     coupling = true
     corr_param = 1.1
@@ -70,7 +69,7 @@ ansatz<R12Ansatz>: ( diag = false )
   )
 
 H2O<Molecule>: (
-   symmetry = auto
+   symmetry = c1
    unit = bohr
    { atoms geometry } = {
   O [  0.00000       -0.07579        0.00000 ]
