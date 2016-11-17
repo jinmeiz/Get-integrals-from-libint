@@ -1920,6 +1920,10 @@ std::vector<Atom> read_dotxyz(std::istream& is) {
   std::string comment;
   std::getline(is, comment);
 
+  // line 3: specify unit: bohr or angstrom
+  std::string unit, unit_label;
+  is >> unit >> unit_label;
+
   std::vector<Atom> atoms(natom);
   for (auto i = 0; i < natom; i++) {
     std::string element_label;
@@ -1949,14 +1953,19 @@ std::vector<Atom> read_dotxyz(std::istream& is) {
 
     atoms[i].atomic_number = Z;
 
-    // .xyz files report Cartesian coordinates in angstroms; convert to bohr
-//    const auto angstrom_to_bohr = 1 / 0.52917721092; // 2010 CODATA value
-//    atoms[i].x = x * angstrom_to_bohr;
-//    atoms[i].y = y * angstrom_to_bohr;
-//    atoms[i].z = z * angstrom_to_bohr;
-    atoms[i].x = x;
-    atoms[i].y = y;
-    atoms[i].z = z;
+    if (unit_label == "bohr") {
+      atoms[i].x = x;
+      atoms[i].y = y;
+      atoms[i].z = z;
+    } else if (unit_label == "angstrom") {
+        const auto angstrom_to_bohr = 1 / 0.52917721092; // 2010 CODATA value
+        atoms[i].x = x * angstrom_to_bohr;
+        atoms[i].y = y * angstrom_to_bohr;
+        atoms[i].z = z * angstrom_to_bohr;
+    } else {
+    	throw "Did not recognize unit label in .xyz file";
+    }
+
   }
 
   return atoms;
